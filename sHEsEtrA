@@ -1,0 +1,35 @@
+import numpy as np
+
+# Definición del sistema cuántico
+num_qubits = 3
+num_samples = 1000
+
+# Definición de la matriz de densidad
+density_matrix = np.zeros((2**num_qubits, 2**num_qubits))
+density_matrix[0, 0] = 1  # Estado inicial: |0...0>
+
+# Definición de los operadores de Pauli
+pauli_x = np.array([[0, 1], [1, 0]])
+pauli_y = np.array([[0, -1j], [1j, 0]])
+pauli_z = np.array([[1, 0], [0, -1]])
+
+# Simulación cuántica de Monte Carlo
+for _ in range(num_samples):
+    # Generación de un conjunto de operadores aleatorios
+    random_operators = [np.random.choice([pauli_x, pauli_y, pauli_z]) for _ in range(num_qubits)]
+
+    # Cálculo del producto tensorial de los operadores
+    product = np.kron(random_operators[0], random_operators[1])
+    for i in range(2, num_qubits):
+        product = np.kron(product, random_operators[i])
+
+    # Actualización de la matriz de densidad
+    density_matrix = product.dot(density_matrix).dot(np.conj(product.T))
+
+# Cálculo de las probabilidades de los estados
+state_probabilities = np.diag(density_matrix).real
+
+# Imprimir las probabilidades de los estados
+for i, probability in enumerate(state_probabilities):
+    binary_state = format(i, '0{}b'.format(num_qubits))
+    print("Estado {}:".format(binary_state), probability)
